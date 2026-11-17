@@ -1,26 +1,181 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-ink: #0b0d10;
+  --color-surface: #14171c;
+  --color-raised: #1a1e24;
+  --color-line: #272b33;
+  --color-line-strong: #3a3f49;
+  --color-fg: #f1f1ef;
+  --color-muted: #969ba5;
+  --color-faint: #6b707a;
+  --color-accent: #a9b8c8;
+
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", monospace;
+
+  --text-display: clamp(2.5rem, 5.6vw, 5.25rem);
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: -0.045em;
+
+  --text-title: clamp(2rem, 3.6vw, 3.25rem);
+  --text-title--line-height: 1.04;
+  --text-title--letter-spacing: -0.04em;
+
+  --text-headline: clamp(1.625rem, 2.6vw, 2.375rem);
+  --text-headline--line-height: 1.15;
+  --text-headline--letter-spacing: -0.03em;
+
+  --text-lead: clamp(1.1875rem, 1.6vw, 1.4375rem);
+  --text-lead--line-height: 1.45;
+  --text-lead--letter-spacing: -0.015em;
+
+  --text-body: 1rem;
+  --text-body--line-height: 1.65;
+
+  --text-label: 0.6875rem;
+  --text-label--line-height: 1.4;
+  --text-label--letter-spacing: 0.08em;
+
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@layer base {
+  html {
+    color-scheme: dark;
+    background: var(--color-ink);
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  body {
+    background: var(--color-ink);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 1px solid var(--color-accent);
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
+
+  [id] {
+    scroll-margin-top: 4.5rem;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .shell {
+    width: 100%;
+    max-width: 82rem;
+    margin-inline: auto;
+    padding-inline: clamp(1.25rem, 4vw, 3rem);
+  }
+
+  .grid-12 {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: clamp(1rem, 2vw, 2rem);
+  }
+
+  .label {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+    color: var(--color-faint);
+  }
+
+  /* Underline drawn in from the left on hover; nothing at rest. */
+  .link-draw {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 100% 100%;
+    background-repeat: no-repeat;
+    padding-bottom: 0.125em;
+    transition: background-size 0.55s var(--ease-out-quint);
+  }
+
+  .link-draw:hover,
+  .link-draw:focus-visible,
+  .group:hover .link-draw {
+    background-size: 100% 1px;
+    background-position: 0% 100%;
+  }
+
+  /* Quiet rule at rest, redrawn in the text colour on hover. */
+  .link-rule {
+    background-image:
+      linear-gradient(currentColor, currentColor), linear-gradient(var(--color-line-strong), var(--color-line-strong));
+    background-size:
+      0% 1px,
+      100% 1px;
+    background-position:
+      0% 100%,
+      0% 100%;
+    background-repeat: no-repeat;
+    padding-bottom: 0.2em;
+    transition:
+      background-size 0.55s var(--ease-out-quint),
+      color 0.3s ease;
+  }
+
+  .link-rule:hover,
+  .link-rule:focus-visible {
+    background-size:
+      100% 1px,
+      100% 1px;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Only browsers that understand a view timeline get the fade. Everyone else sees the text immediately. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      animation-name: rise;
+      animation-duration: 0.9s;
+      animation-timing-function: var(--ease-out-quint);
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 22%;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

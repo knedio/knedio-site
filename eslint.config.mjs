@@ -13,6 +13,12 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  {
+    rules: {
+      // Components and helpers are arrow functions, so names stay stable and `this` is never implicit.
+      "func-style": ["error", "expression", { allowArrowFunctions: true }],
+    },
+  },
 ]);
 
 export default eslintConfig;
